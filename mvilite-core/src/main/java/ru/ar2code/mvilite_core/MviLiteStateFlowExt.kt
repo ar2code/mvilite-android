@@ -19,6 +19,15 @@ inline fun <T> MutableStateFlow<T>.updateIfNotNull(reducerFunction: (T) -> T?) {
     }
 }
 
+/**
+ * Updates the [MutableStateFlow.value] atomically using the specified [reducerFunction] of its value.
+ *
+ * If [reducerFunction] returns null, value will not be updated.
+ *
+ * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated.
+ *
+ * @return previous state that was before update
+ */
 inline fun <T> MutableStateFlow<T>.updateIfNotNullAndGetPrevious(reducerFunction: (T) -> T?): T {
     while (true) {
         val prevValue = value
@@ -29,6 +38,15 @@ inline fun <T> MutableStateFlow<T>.updateIfNotNullAndGetPrevious(reducerFunction
     }
 }
 
+/**
+ * Updates the [MutableStateFlow.value] atomically using the specified [reducerFunction] of its value.
+ *
+ * If [reducerFunction] returns null, value will not be updated.
+ *
+ * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated.
+ *
+ * @return updated state value returned by [reducerFunction]
+ */
 inline fun <T> MutableStateFlow<T>.updateIfNotNullAndGetUpdated(reducerFunction: (T) -> T?): T? {
     while (true) {
         val prevValue = value

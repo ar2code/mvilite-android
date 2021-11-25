@@ -3,12 +3,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        jcenter() // Warning: this repository is going to shut down soon
     }
 }
 rootProject.name = "MVILite"
-include ':demo-app'
+
 include ':mvilite-core'
 include ':mvilite-ui'
-include ':demo-app-compose'
-include ':demo-app-shared'
