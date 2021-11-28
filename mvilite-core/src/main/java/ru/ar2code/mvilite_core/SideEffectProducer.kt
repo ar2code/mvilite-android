@@ -1,8 +1,13 @@
 package ru.ar2code.mvilite_core
 
 /**
- * Clean function just get side effect based on updated state.
+ * Clean function just get side effect based on state.
  */
 interface SideEffectProducer<S, E, P> {
-    fun getEffect(state: S, parameter: P?): E?
+    /**
+     * @param state - current state
+     * @param updatedState - if true reducer updated state
+     * @param parameter - some extra parameter (can be dispatched message or result from interactor)
+     */
+    fun getEffectAfterStateUpdating(state: S, updatedState: Boolean, parameter: P?): E?
 }

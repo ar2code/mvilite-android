@@ -74,22 +74,25 @@ abstract class MviLiteViewModel<S, E>(
      * Helper method that allows you to handle [message] inside some logic that returns a flow [messageInteractor].
      * Result [R] from that flow will be passed as parameter to [reducer] for making a new state.
      *
-     * After state will be updated you can emit some side effect if need with [sideEffectAfter].
+     * After state will be reduced you can emit some side effect with [sideEffectAfter].
      */
     protected fun <M, R> reduceWithInteractor(
         message: M,
-        messageInteractor: ((M) -> Flow<R>?),
+        messageInteractor: ((M) -> Flow<R>),
         reducer: StateReducer<R, S>,
         sideEffectAfter: SideEffectProducer<S, E, R>? = null
     ) {
         viewModelScope.launch {
-            messageInteractor.invoke(message)?.collect { result ->
-                updateStateAndGetUpdated {
+            messageInteractor.invoke(message).collect { result ->
+                val updatedState = updateStateAndGetUpdated {
                     reducer.reduce(it, result)
-                }?.let { updatedState ->
-                    sideEffectAfter?.getEffect(updatedState, result)?.let { effect ->
-                        emitSideEffect(effect)
-                    }
+                }
+                sideEffectAfter?.getEffectAfterStateUpdating(
+                    updatedState ?: uiState.value,
+                    updatedState != null,
+                    result
+                )?.let { effect ->
+                    emitSideEffect(effect)
                 }
             }
         }
@@ -101,19 +104,23 @@ abstract class MviLiteViewModel<S, E>(
      *
      * If you need to do some suspending logic before reducing, consider method [reduceWithInteractor].
      *
-     * After state will be updated you can emit some side effect if need with [sideEffectAfter].
+     * After state will be reduced you can emit some side effect with [sideEffectAfter].
      */
     protected fun <M> reduce(
         message: M,
         reducer: StateReducer<M, S>,
         sideEffectAfter: SideEffectProducer<S, E, M>? = null
     ) {
-        updateStateAndGetUpdated {
+        val updatedState = updateStateAndGetUpdated {
             reducer.reduce(it, message)
-        }?.let { updatedState ->
-            sideEffectAfter?.getEffect(updatedState, message)?.let { effect ->
+        }
+        sideEffectAfter?.getEffectAfterStateUpdating(
+            updatedState ?: uiState.value,
+            updatedState != null,
+            message
+        )
+            ?.let { effect ->
                 emitSideEffect(effect)
             }
-        }
     }
 }
