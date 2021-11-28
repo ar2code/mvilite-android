@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
  * New subscribers will not receive previous effect. Only active subscribers can receive side effects.
  */
 abstract class MviLiteViewModel<S, E>(
-    initialStateFactory: InitialStateFactory<S>
+    initialStateFactory: MviLiteInitialStateFactory<S>
 ) : ViewModel() {
 
     private val viewStateMutable = MutableStateFlow(initialStateFactory.getState())
@@ -79,21 +79,12 @@ abstract class MviLiteViewModel<S, E>(
     protected fun <M, R> reduceWithInteractor(
         message: M,
         messageInteractor: ((M) -> Flow<R>),
-        reducer: StateReducer<R, S>,
-        sideEffectAfter: SideEffectProducer<S, E, R>? = null
+        reducer: MviLiteStateReducer<M, S, R>,
+        sideEffectAfter: MviLiteSideEffectProducer<M, S, E, R>? = null
     ) {
         viewModelScope.launch {
             messageInteractor.invoke(message).collect { result ->
-                val updatedState = updateStateAndGetUpdated {
-                    reducer.reduce(it, result)
-                }
-                sideEffectAfter?.getEffectAfterStateUpdating(
-                    updatedState ?: uiState.value,
-                    updatedState != null,
-                    result
-                )?.let { effect ->
-                    emitSideEffect(effect)
-                }
+                reduce(message, result, reducer, sideEffectAfter)
             }
         }
     }
@@ -106,21 +97,33 @@ abstract class MviLiteViewModel<S, E>(
      *
      * After state will be reduced you can emit some side effect with [sideEffectAfter].
      */
-    protected fun <M> reduce(
+    protected fun <M, R> reduce(
         message: M,
-        reducer: StateReducer<M, S>,
-        sideEffectAfter: SideEffectProducer<S, E, M>? = null
+        reducer: MviLiteStateReducer<M, S, R>,
+        sideEffectAfter: MviLiteSideEffectProducer<M, S, E, R>? = null
     ) {
-        val updatedState = updateStateAndGetUpdated {
-            reducer.reduce(it, message)
+        reduce(message, null, reducer, sideEffectAfter)
+    }
+
+    /**
+     * Reduce dispatched message and result from interactor to a new state.
+     */
+    internal fun <M, R> reduce(
+        message: M,
+        result: R?,
+        reducer: MviLiteStateReducer<M, S, R>,
+        sideEffectAfter: MviLiteSideEffectProducer<M, S, E, R>? = null
+    ) {
+        val updatedState = updateStateAndGetUpdated { newState ->
+            reducer.reduce(message, newState, result)
         }
         sideEffectAfter?.getEffectAfterStateUpdating(
+            message,
             updatedState ?: uiState.value,
             updatedState != null,
-            message
-        )
-            ?.let { effect ->
-                emitSideEffect(effect)
-            }
+            result
+        )?.let { effect ->
+            emitSideEffect(effect)
+        }
     }
 }

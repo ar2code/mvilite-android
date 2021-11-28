@@ -6,8 +6,8 @@ import androidx.lifecycle.SavedStateHandle
  * Factory that has access to ViewModel's [SavedStateHandle].
  * You can restore view model and create appropriate initial state.
  */
-abstract class SavedStateHandleInitialStateFactory<S>(private val savedStateHandle: SavedStateHandle) :
-    InitialStateFactory<S> {
+abstract class MviLiteSavedStateHandleInitialFactory<S>(private val savedStateHandle: SavedStateHandle) :
+    MviLiteInitialStateFactory<S> {
 
     /**
      * Get initial state from [savedStateHandle]

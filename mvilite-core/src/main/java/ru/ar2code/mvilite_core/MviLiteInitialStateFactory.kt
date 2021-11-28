@@ -3,7 +3,7 @@ package ru.ar2code.mvilite_core
 /**
  * Factory that creates initial state for [MviLiteViewModel]
  */
-interface InitialStateFactory<S> {
+interface MviLiteInitialStateFactory<S> {
 
     /**
      * Get initial state
