@@ -1,11 +1,10 @@
 package ru.ar2code.mvilite_core
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 /**
  * Simple MVI ViewModel that provides ui state and side effects as flows.
@@ -47,7 +46,7 @@ abstract class MviLiteViewModel<S, E>(
      * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated, so
      * you should not put any calculation operations inside reducer, if recalculating is not required by your logic.
      *
-     * @return previos state
+     * @return previous state
      */
     protected fun updateStateAndGetPrevious(reducerFunction: (S) -> S?): S {
         return viewStateMutable.updateIfNotNullAndGetPrevious(reducerFunction)
@@ -71,4 +70,50 @@ abstract class MviLiteViewModel<S, E>(
         sideEffectsMutable.tryEmit(effect)
     }
 
+    /**
+     * Helper method that allows you to handle [message] inside some logic that returns a flow [messageInteractor].
+     * Result [R] from that flow will be passed as parameter to [reducer] for making a new state.
+     *
+     * After state will be updated you can emit some side effect if need with [sideEffectAfter].
+     */
+    protected fun <M, R> reduceWithInteractor(
+        message: M,
+        messageInteractor: ((M) -> Flow<R>?),
+        reducer: StateReducer<R, S>,
+        sideEffectAfter: SideEffectProducer<S, E, R>? = null
+    ) {
+        viewModelScope.launch {
+            messageInteractor.invoke(message)?.collect { result ->
+                updateStateAndGetUpdated {
+                    reducer.reduce(it, result)
+                }?.let { updatedState ->
+                    sideEffectAfter?.getEffect(updatedState, result)?.let { effect ->
+                        emitSideEffect(effect)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper method that allows you to handle [message] inside [reducer].
+     * In that case message will be passed as parameter to reducer.
+     *
+     * If you need to do some suspending logic before reducing, consider method [reduceWithInteractor].
+     *
+     * After state will be updated you can emit some side effect if need with [sideEffectAfter].
+     */
+    protected fun <M> reduce(
+        message: M,
+        reducer: StateReducer<M, S>,
+        sideEffectAfter: SideEffectProducer<S, E, M>? = null
+    ) {
+        updateStateAndGetUpdated {
+            reducer.reduce(it, message)
+        }?.let { updatedState ->
+            sideEffectAfter?.getEffect(updatedState, message)?.let { effect ->
+                emitSideEffect(effect)
+            }
+        }
+    }
 }
