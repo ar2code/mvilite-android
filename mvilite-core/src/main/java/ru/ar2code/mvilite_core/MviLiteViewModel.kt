@@ -64,10 +64,19 @@ abstract class MviLiteViewModel<S, E>(
     }
 
     /**
-     * Send side effect
+     * Send side effect.
      */
     protected fun emitSideEffect(effect: E) {
         sideEffectsMutable.tryEmit(effect)
     }
 
+    /**
+     * Reduce (intent,current state) to a new state
+     * and update state atomically.
+     */
+    protected fun <I> updateWithReducer(intent: I, reducer: MviLiteReducer<I, S>): S? {
+        return updateStateAndGetUpdated {
+            reducer.reduce(intent, it)
+        }
+    }
 }
