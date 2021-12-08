@@ -73,8 +73,10 @@ abstract class MviLiteViewModel<S, E>(
     /**
      * Reduce (intent,current state) to a new state
      * and update state atomically.
+     *
+     * @return new state
      */
-    protected fun <I> updateWithReducer(intent: I, reducer: MviLiteReducer<I, S>): S? {
+    protected fun <I> updateWithReducerAndGetUpdated(intent: I, reducer: MviLiteReducer<I, S>): S? {
         return updateStateAndGetUpdated {
             reducer.reduce(intent, it)
         }
