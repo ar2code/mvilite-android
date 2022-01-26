@@ -1,10 +1,9 @@
 package ru.ar2code.mvilite_core
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlin.reflect.KClass
 
 /**
  * Simple MVI ViewModel that provides ui state and side effects as flows.
@@ -79,6 +78,15 @@ abstract class MviLiteViewModel<S, E>(
     protected fun <I> updateWithReducerAndGetUpdated(intent: I, reducer: MviLiteReducer<I, S>): S? {
         return updateStateAndGetUpdated {
             reducer.reduce(intent, it)
+        }
+    }
+
+    /**
+     * Invoke specified [action] if [currentState] instance of [expectedState].
+     */
+    protected fun invokeForState(expectedState: KClass<*>, currentState: S?, action: () -> Unit) {
+        if (expectedState.isInstance(currentState)) {
+            action()
         }
     }
 }
