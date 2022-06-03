@@ -18,18 +18,11 @@ abstract class MviLiteViewModel<S, E>(
 ) : ViewModel() {
 
     private val viewStateMutable = MutableStateFlow(initialStateFactory.getState())
-    private val sideEffectsMutable =
-        MutableSharedFlow<E>(0, 1, onBufferOverflow = BufferOverflow.DROP_LATEST)
 
     /**
      * UI State flow
      */
     val uiState = viewStateMutable.asStateFlow()
-
-    /**
-     * Side effects flow
-     */
-    val uiSideEffects = sideEffectsMutable.asSharedFlow()
 
     /**
      * Update UI state atomically.
@@ -60,13 +53,6 @@ abstract class MviLiteViewModel<S, E>(
      */
     protected fun updateStateAndGetUpdated(reducerFunction: (S) -> S?): S? {
         return viewStateMutable.updateIfNotNullAndGetUpdated(reducerFunction)
-    }
-
-    /**
-     * Send side effect.
-     */
-    protected fun emitSideEffect(effect: E) {
-        sideEffectsMutable.tryEmit(effect)
     }
 
     /**
