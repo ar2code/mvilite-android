@@ -1,19 +1,16 @@
 package ru.ar2code.mvilite_core
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlin.reflect.KClass
 
 /**
  * Simple MVI ViewModel that provides ui state and side effects as flows.
  * UI State can be atomically updated by some of [updateState] methods.
  * New subscribers will receive current state.
- *
- * Side effects can be emitted with [emitSideEffect].
- * New subscribers will not receive previous effect. Only active subscribers can receive side effects.
  */
-abstract class MviLiteViewModel<S, E>(
+abstract class MviLiteViewModel<S>(
     initialStateFactory: MviLiteInitialStateFactory<S>
 ) : ViewModel() {
 

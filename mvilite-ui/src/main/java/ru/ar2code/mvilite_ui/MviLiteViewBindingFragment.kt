@@ -19,24 +19,18 @@ import ru.ar2code.mvilite_core.MviLiteViewModel
  * To handle side effect use [onNewUiSideEffect].
  *
  */
-abstract class MviLiteViewBindingFragment<VB, S, E> :
+abstract class MviLiteViewBindingFragment<VB, S> :
     ViewBindingFragment<VB>() where VB : ViewBinding {
 
     /**
      * Single view model that describes current UI screen.
      */
-    protected abstract val viewModel: MviLiteViewModel<S, E>
+    protected abstract val viewModel: MviLiteViewModel<S>
 
     /**
      * Current UI state, that was rendered.
      */
     protected var currentUiViewState: S? = null
-        private set
-
-    /**
-     * Last side effect, that was handled.
-     */
-    protected var previousUiSideEffect: E? = null
         private set
 
     /**
@@ -46,27 +40,16 @@ abstract class MviLiteViewBindingFragment<VB, S, E> :
      */
     protected abstract fun onNewUiViewState(newUiViewState: S)
 
-    /**
-     * Handle side effects.
-     *
-     * You can compare new effect instance with the last one [previousUiSideEffect].
-     */
-    protected open fun onNewUiSideEffect(newUiViewEvent: E) {
-        //handle side effect
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         observeUiState()
-        observeSideEffects()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
 
         currentUiViewState = null
-        previousUiSideEffect = null
     }
 
     private fun observeUiState() {
@@ -75,17 +58,6 @@ abstract class MviLiteViewBindingFragment<VB, S, E> :
                 viewModel.uiState.collect {
                     onNewUiViewState(it)
                     currentUiViewState = it
-                }
-            }
-        }
-    }
-
-    private fun observeSideEffects() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiSideEffects.collect {
-                    onNewUiSideEffect(it)
-                    previousUiSideEffect = it
                 }
             }
         }
