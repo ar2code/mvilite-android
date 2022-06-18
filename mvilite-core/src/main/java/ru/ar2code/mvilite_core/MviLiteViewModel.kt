@@ -51,25 +51,4 @@ abstract class MviLiteViewModel<S>(
     protected fun updateStateAndGetUpdated(reducerFunction: (S) -> S?): S? {
         return viewStateMutable.updateIfNotNullAndGetUpdated(reducerFunction)
     }
-
-    /**
-     * Reduce (intent,current state) to a new state
-     * and update state atomically.
-     *
-     * @return new state
-     */
-    protected fun <I> updateWithReducerAndGetUpdated(intent: I, reducer: MviLiteReducer<I, S>): S? {
-        return updateStateAndGetUpdated {
-            reducer.reduce(intent, it)
-        }
-    }
-
-    /**
-     * Invoke specified [action] if [currentState] instance of [expectedState].
-     */
-    protected fun invokeForState(expectedState: KClass<*>, currentState: S?, action: () -> Unit) {
-        if (expectedState.isInstance(currentState)) {
-            action()
-        }
-    }
 }
