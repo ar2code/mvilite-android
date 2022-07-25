@@ -8,5 +8,10 @@ interface MviLiteInitialStateFactory<S> {
     /**
      * Get initial state
      */
-    fun getState(): S
+    fun getInitialState(): S
+
+    /**
+     * Load initial state with coroutine
+     */
+    suspend fun loadState(): S?
 }

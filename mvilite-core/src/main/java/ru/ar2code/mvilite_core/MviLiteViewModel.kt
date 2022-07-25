@@ -1,9 +1,10 @@
 package ru.ar2code.mvilite_core
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlin.reflect.KClass
+import kotlinx.coroutines.launch
 
 /**
  * Simple MVI ViewModel that provides ui state and side effects as flows.
@@ -14,7 +15,14 @@ abstract class MviLiteViewModel<S>(
     initialStateFactory: MviLiteInitialStateFactory<S>
 ) : ViewModel() {
 
-    private val viewStateMutable = MutableStateFlow(initialStateFactory.getState())
+    private val viewStateMutable =
+        MutableStateFlow(initialStateFactory.getInitialState()).also { stateFlow ->
+            viewModelScope.launch {
+                initialStateFactory.loadState()?.let { loadedState ->
+                    stateFlow.emit(loadedState)
+                }
+            }
+        }
 
     /**
      * UI State flow

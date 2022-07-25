@@ -12,9 +12,20 @@ abstract class MviLiteSavedStateHandleInitialFactory<S>(private val savedStateHa
     /**
      * Get initial state from [savedStateHandle]
      */
-    abstract fun getState(savedStateHandle: SavedStateHandle): S
+    abstract fun getEmptyState(savedStateHandle: SavedStateHandle): S
 
-    final override fun getState(): S {
-        return getState(savedStateHandle)
+    /**
+     * Load initial state from [savedStateHandle] with coroutine
+     */
+    open suspend fun loadState(savedStateHandle: SavedStateHandle): S? {
+        return null
+    }
+
+    final override suspend fun loadState(): S? {
+        return loadState(savedStateHandle)
+    }
+
+    final override fun getInitialState(): S {
+        return getEmptyState(savedStateHandle)
     }
 }
