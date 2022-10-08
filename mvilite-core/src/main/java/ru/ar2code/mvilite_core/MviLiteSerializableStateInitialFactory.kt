@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
  */
 abstract class MviLiteSerializableStateInitialFactory<S>(
     private val stateDeserializer: StateDeserializer<S>,
+    internal val stateSerializer: StateSerializer<S>,
     savedStateHandle: SavedStateHandle
 ) :
     MviLiteSavedStateHandleInitialFactory<S>(savedStateHandle) {

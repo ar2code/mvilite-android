@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
  * New subscribers will receive current state.
  */
 abstract class MviLiteViewModel<S>(
-    initialStateFactory: MviLiteInitialStateFactory<S>
+    protected open val initialStateFactory: MviLiteInitialStateFactory<S>
 ) : ViewModel() {
 
     private val viewStateMutable =
