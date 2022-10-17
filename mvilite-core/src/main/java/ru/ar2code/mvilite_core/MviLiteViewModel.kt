@@ -34,7 +34,7 @@ abstract class MviLiteViewModel<S>(
      * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated, so
      * you should not put any calculation operations inside reducer, if recalculating is not required by your logic.
      */
-    protected fun updateState(reducerFunction: (S) -> S?) {
+    protected suspend fun updateState(reducerFunction: suspend (S) -> S?) {
         viewStateMutable.updateIfNotNull(reducerFunction)
     }
 
@@ -45,7 +45,7 @@ abstract class MviLiteViewModel<S>(
      *
      * @return previous state
      */
-    protected fun updateStateAndGetPrevious(reducerFunction: (S) -> S?): S {
+    protected suspend fun updateStateAndGetPrevious(reducerFunction: suspend (S) -> S?): S {
         return viewStateMutable.updateIfNotNullAndGetPrevious(reducerFunction)
     }
 
@@ -56,7 +56,7 @@ abstract class MviLiteViewModel<S>(
      *
      * @return new state
      */
-    protected fun updateStateAndGetUpdated(reducerFunction: (S) -> S?): S? {
+    protected suspend fun updateStateAndGetUpdated(reducerFunction: suspend (S) -> S?): S? {
         return viewStateMutable.updateIfNotNullAndGetUpdated(reducerFunction)
     }
 }

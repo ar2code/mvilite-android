@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
  *
  * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated.
  */
-inline fun <T> MutableStateFlow<T>.updateIfNotNull(reducerFunction: (T) -> T?) {
+suspend fun <T> MutableStateFlow<T>.updateIfNotNull(reducerFunction: suspend (T) -> T?) {
     while (true) {
         val prevValue = value
         val nextValue = reducerFunction(prevValue)
@@ -28,7 +28,7 @@ inline fun <T> MutableStateFlow<T>.updateIfNotNull(reducerFunction: (T) -> T?) {
  *
  * @return previous state that was before update
  */
-inline fun <T> MutableStateFlow<T>.updateIfNotNullAndGetPrevious(reducerFunction: (T) -> T?): T {
+suspend fun <T> MutableStateFlow<T>.updateIfNotNullAndGetPrevious(reducerFunction: suspend (T) -> T?): T {
     while (true) {
         val prevValue = value
         val nextValue = reducerFunction(prevValue)
@@ -47,7 +47,7 @@ inline fun <T> MutableStateFlow<T>.updateIfNotNullAndGetPrevious(reducerFunction
  *
  * @return updated state value returned by [reducerFunction]
  */
-inline fun <T> MutableStateFlow<T>.updateIfNotNullAndGetUpdated(reducerFunction: (T) -> T?): T? {
+suspend fun <T> MutableStateFlow<T>.updateIfNotNullAndGetUpdated(reducerFunction: suspend (T) -> T?): T? {
     while (true) {
         val prevValue = value
         val nextValue = reducerFunction(prevValue)
