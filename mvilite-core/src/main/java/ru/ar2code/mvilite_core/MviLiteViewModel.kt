@@ -34,38 +34,7 @@ abstract class MviLiteViewModel<S>(
      * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated, so
      * you should not put any calculation operations inside reducer, if recalculating is not required by your logic.
      */
-    protected fun updateStateSync(reducerFunction: (S) -> S?) {
-        viewStateMutable.updateIfNotNullSync(reducerFunction)
-    }
-
-    /**
-     * Update UI state atomically.
-     * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated, so
-     * you should not put any calculation operations inside reducer, if recalculating is not required by your logic.
-     *
-     * @return previous state
-     */
-    protected fun updateStateAndGetPreviousSync(reducerFunction: (S) -> S?): S {
-        return viewStateMutable.updateIfNotNullAndGetPreviousSync(reducerFunction)
-    }
-
-    /**
-     * Update UI state atomically.
-     * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated, so
-     * you should not put any calculation operations inside reducer, if recalculating is not required by your logic.
-     *
-     * @return new state
-     */
-    protected fun updateStateAndGetUpdatedSync(reducerFunction: (S) -> S?): S? {
-        return viewStateMutable.updateIfNotNullAndGetUpdatedSync(reducerFunction)
-    }
-
-    /**
-     * Update UI state atomically.
-     * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated, so
-     * you should not put any calculation operations inside reducer, if recalculating is not required by your logic.
-     */
-    protected suspend fun updateState(reducerFunction: suspend (S) -> S?) {
+    protected fun updateState(reducerFunction: (S) -> S?) {
         viewStateMutable.updateIfNotNull(reducerFunction)
     }
 
@@ -76,7 +45,7 @@ abstract class MviLiteViewModel<S>(
      *
      * @return previous state
      */
-    protected suspend fun updateStateAndGetPrevious(reducerFunction: suspend (S) -> S?): S {
+    protected fun updateStateAndGetPrevious(reducerFunction: (S) -> S?): S {
         return viewStateMutable.updateIfNotNullAndGetPrevious(reducerFunction)
     }
 
@@ -87,7 +56,38 @@ abstract class MviLiteViewModel<S>(
      *
      * @return new state
      */
-    protected suspend fun updateStateAndGetUpdated(reducerFunction: suspend (S) -> S?): S? {
+    protected fun updateStateAndGetUpdated(reducerFunction: (S) -> S?): S? {
         return viewStateMutable.updateIfNotNullAndGetUpdated(reducerFunction)
+    }
+
+    /**
+     * Update UI state atomically.
+     * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated, so
+     * you should not put any calculation operations inside reducer, if recalculating is not required by your logic.
+     */
+    protected suspend fun coUpdateState(reducerFunction: suspend (S) -> S?) {
+        viewStateMutable.coUpdateIfNotNull(reducerFunction)
+    }
+
+    /**
+     * Update UI state atomically.
+     * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated, so
+     * you should not put any calculation operations inside reducer, if recalculating is not required by your logic.
+     *
+     * @return previous state
+     */
+    protected suspend fun coUpdateStateAndGetPrevious(reducerFunction: suspend (S) -> S?): S {
+        return viewStateMutable.coUpdateIfNotNullAndGetPrevious(reducerFunction)
+    }
+
+    /**
+     * Update UI state atomically.
+     * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated, so
+     * you should not put any calculation operations inside reducer, if recalculating is not required by your logic.
+     *
+     * @return new state
+     */
+    protected suspend fun coUpdateStateAndGetUpdated(reducerFunction: suspend (S) -> S?): S? {
+        return viewStateMutable.coUpdateIfNotNullAndGetUpdated(reducerFunction)
     }
 }

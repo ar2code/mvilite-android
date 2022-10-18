@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
  *
  * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated.
  */
-fun <T> MutableStateFlow<T>.updateIfNotNullSync(reducerFunction: (T) -> T?) {
+fun <T> MutableStateFlow<T>.updateIfNotNull(reducerFunction: (T) -> T?) {
     while (true) {
         val prevValue = value
         val nextValue = reducerFunction(prevValue)
@@ -28,7 +28,7 @@ fun <T> MutableStateFlow<T>.updateIfNotNullSync(reducerFunction: (T) -> T?) {
  *
  * @return previous state that was before update
  */
-fun <T> MutableStateFlow<T>.updateIfNotNullAndGetPreviousSync(reducerFunction: (T) -> T?): T {
+fun <T> MutableStateFlow<T>.updateIfNotNullAndGetPrevious(reducerFunction: (T) -> T?): T {
     while (true) {
         val prevValue = value
         val nextValue = reducerFunction(prevValue)
@@ -47,7 +47,7 @@ fun <T> MutableStateFlow<T>.updateIfNotNullAndGetPreviousSync(reducerFunction: (
  *
  * @return updated state value returned by [reducerFunction]
  */
-fun <T> MutableStateFlow<T>.updateIfNotNullAndGetUpdatedSync(reducerFunction: (T) -> T?): T? {
+fun <T> MutableStateFlow<T>.updateIfNotNullAndGetUpdated(reducerFunction: (T) -> T?): T? {
     while (true) {
         val prevValue = value
         val nextValue = reducerFunction(prevValue)
@@ -64,7 +64,7 @@ fun <T> MutableStateFlow<T>.updateIfNotNullAndGetUpdatedSync(reducerFunction: (T
  *
  * [reducerFunction] may be evaluated multiple times, if [MutableStateFlow.value] is being concurrently updated.
  */
-suspend fun <T> MutableStateFlow<T>.updateIfNotNull(reducerFunction: suspend (T) -> T?) {
+suspend fun <T> MutableStateFlow<T>.coUpdateIfNotNull(reducerFunction: suspend (T) -> T?) {
     while (true) {
         val prevValue = value
         val nextValue = reducerFunction(prevValue)
@@ -83,7 +83,7 @@ suspend fun <T> MutableStateFlow<T>.updateIfNotNull(reducerFunction: suspend (T)
  *
  * @return previous state that was before update
  */
-suspend fun <T> MutableStateFlow<T>.updateIfNotNullAndGetPrevious(reducerFunction: suspend (T) -> T?): T {
+suspend fun <T> MutableStateFlow<T>.coUpdateIfNotNullAndGetPrevious(reducerFunction: suspend (T) -> T?): T {
     while (true) {
         val prevValue = value
         val nextValue = reducerFunction(prevValue)
@@ -102,7 +102,7 @@ suspend fun <T> MutableStateFlow<T>.updateIfNotNullAndGetPrevious(reducerFunctio
  *
  * @return updated state value returned by [reducerFunction]
  */
-suspend fun <T> MutableStateFlow<T>.updateIfNotNullAndGetUpdated(reducerFunction: suspend (T) -> T?): T? {
+suspend fun <T> MutableStateFlow<T>.coUpdateIfNotNullAndGetUpdated(reducerFunction: suspend (T) -> T?): T? {
     while (true) {
         val prevValue = value
         val nextValue = reducerFunction(prevValue)
